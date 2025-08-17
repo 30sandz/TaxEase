@@ -13,7 +13,6 @@ import ExpenseEntry from "@/components/expense-entry"
 import MistakeDetector from "@/components/mistake-detector"
 import AnalyticsScreen from "@/components/analytics-screen"
 import SimplifiedDashboard from "@/components/simplified-dashboard"
-import BeautifulHomePage from "@/components/beautiful-home-page"
 
 interface CSVAnalysisResults {
   totalExpenses: number
@@ -105,7 +104,7 @@ export default function TaxEaseApp() {
   }
 
   const guardedSetCurrentView = (view: string) => {
-    if (!isAuthenticated && view !== "home" && view !== "login" && view !== "csv-analyzer") {
+    if (!isAuthenticated && view !== "home" && view !== "login") {
       setCurrentView("login")
       return
     }
@@ -121,7 +120,46 @@ export default function TaxEaseApp() {
   }, [darkMode])
 
   const HomePage = () => (
-    <BeautifulHomePage setCurrentView={guardedSetCurrentView} />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 dark:from-slate-900 dark:to-blue-950">
+      <Navigation
+        currentView={currentView}
+        setCurrentView={guardedSetCurrentView}
+        darkMode={darkMode}
+        setDarkMode={setDarkMode}
+        language={language}
+        setLanguage={setLanguage}
+        notificationCount={notificationCount}
+        showNotifications={showNotifications}
+        setShowNotifications={setShowNotifications}
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
+      <div className="container mx-auto px-4 py-16 text-center">
+        <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-6">
+          TaxEase
+        </h1>
+        <p className="text-xl text-gray-600 dark:text-gray-400 mb-8">
+          Professional Tax Management
+        </p>
+        <p className="text-lg text-gray-500 dark:text-gray-500 mb-12">
+          AI-powered financial intelligence for modern businesses
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button
+            onClick={() => guardedSetCurrentView("login")}
+            className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+          >
+            Sign In
+          </button>
+          <button
+            onClick={() => guardedSetCurrentView("csv-analyzer")}
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-8 py-3 rounded-lg font-semibold transition-colors"
+          >
+            Get Started
+          </button>
+        </div>
+      </div>
+    </div>
   )
 
   const DashboardPage = () => (
@@ -175,7 +213,7 @@ export default function TaxEaseApp() {
       case "home":
         return <HomePage />
       case "login":
-        return <LoginPage onSuccess={() => { setIsAuthenticated(true); setCurrentView("dashboard") }} setCurrentView={setCurrentView} />
+        return <LoginPage onSuccess={() => { setIsAuthenticated(true); setCurrentView("dashboard") }} />
       case "dashboard":
         return <DashboardPage />
       case "analytics":
