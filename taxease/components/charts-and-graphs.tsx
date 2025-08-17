@@ -7,6 +7,8 @@ import {
   ComposedChart, Scatter, ScatterPlot
 } from "recharts"
 import { TrendingUp, TrendingDown, DollarSign, PieChart as PieChartIcon, Activity, Target, BarChart3, PieChart as PieChartIcon2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Upload } from "lucide-react" // or wherever Upload comes from
 
 interface ChartsAndGraphsProps {
   csvAnalysisResults: any
