@@ -102,7 +102,7 @@ export default function AIAssistantScreen() {
   const handleSendMessage = async () => {
     const text = message.trim()
     if (!text) return
-    const newUser = { id: Date.now(), type: "user" as const, message: text, timestamp: new Date().toLocaleTimeString() }
+    const newUser = { id: Date.now(), type: "user" as const, message: text, timestamp: new Date().toLocaleTimeString(), category: "user_input" }
     setHistory((h) => [...h, newUser])
     setMessage("")
     setIsTyping(true)

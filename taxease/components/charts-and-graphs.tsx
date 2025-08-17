@@ -4,11 +4,10 @@ import {
   LineChart, Line, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
   XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
-  ComposedChart, Scatter, ScatterPlot
+  ComposedChart, Scatter
 } from "recharts"
-import { TrendingUp, TrendingDown, DollarSign, PieChart as PieChartIcon, Activity, Target, BarChart3, PieChart as PieChartIcon2 } from "lucide-react"
+import { TrendingUp, TrendingDown, DollarSign, PieChart as PieChartIcon, Activity, Target, BarChart3, PieChart as PieChartIcon2, Upload } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Upload } from "lucide-react" // or wherever Upload comes from
 
 interface ChartsAndGraphsProps {
   csvAnalysisResults: any
@@ -16,6 +15,9 @@ interface ChartsAndGraphsProps {
 }
 
 export default function ChartsAndGraphs({ csvAnalysisResults, taxDerived }: ChartsAndGraphsProps) {
+  // Debug logging
+  console.log('ChartsAndGraphs props:', { csvAnalysisResults, taxDerived })
+  
   // Enhanced mock data for better visualizations with proper fallbacks
   const monthlyData = csvAnalysisResults?.monthlyTrend || [
     { month: "Jan", expenses: 45000, savings: 12000, deductions: 18000, income: 120000, taxPaid: 15000 },
@@ -108,6 +110,30 @@ export default function ChartsAndGraphs({ csvAnalysisResults, taxDerived }: Char
     return categoryData?.length || 0
   }
 
+  // Enhanced data validation and fallbacks
+  const hasValidData = () => {
+    return csvAnalysisResults && Object.keys(csvAnalysisResults).length > 0
+  }
+
+  const getChartData = () => {
+    if (hasValidData()) {
+      return {
+        monthly: csvAnalysisResults.monthlyTrend || monthlyData,
+        category: csvAnalysisResults.categoryBreakdown || categoryData,
+        performance: performanceData,
+        radar: radarData,
+        quarterly: quarterlyData
+      }
+    }
+    return {
+      monthly: monthlyData,
+      category: categoryData,
+      performance: performanceData,
+      radar: radarData,
+      quarterly: quarterlyData
+    }
+  }
+
   return (
     <div className="space-y-8">
       {/* Data Notice */}
@@ -143,74 +169,78 @@ export default function ChartsAndGraphs({ csvAnalysisResults, taxDerived }: Char
           <p className="text-blue-600 text-lg">Comprehensive view of your financial performance over time</p>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={450}>
-            <ComposedChart data={monthlyData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.3} />
-              <XAxis dataKey="month" stroke="#64748B" fontSize={12} />
-              <YAxis stroke="#64748B" fontSize={12} />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Area 
-                type="monotone" 
-                dataKey="income" 
-                fill="#10B981" 
-                fillOpacity={0.1}
-                stroke="#10B981"
-                strokeWidth={2}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="expenses" 
-                stroke="#EF4444" 
-                strokeWidth={3}
-                dot={{ fill: '#EF4444', strokeWidth: 2, r: 6 }}
-                activeDot={{ r: 8, stroke: '#EF4444', strokeWidth: 2 }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="deductions" 
-                stroke="#8B5CF6" 
-                strokeWidth={3}
-                dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 6 }}
-                activeDot={{ r: 8, stroke: '#8B5CF6', strokeWidth: 2 }}
-              />
-              <Line 
-                type="monotone" 
-                dataKey="taxPaid" 
-                stroke="#F59E0B" 
-                strokeWidth={3}
-                dot={{ fill: '#F59E0B', strokeWidth: 2, r: 6 }}
-                activeDot={{ r: 8, stroke: '#F59E0B', strokeWidth: 2 }}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+          {getChartData().monthly && getChartData().monthly.length > 0 ? (
+            <ResponsiveContainer width="100%" height={450}>
+              <ComposedChart data={getChartData().monthly}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.3} />
+                <XAxis dataKey="month" stroke="#64748B" fontSize={12} />
+                <YAxis stroke="#64748B" fontSize={12} />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Area 
+                  type="monotone" 
+                  dataKey="income" 
+                  fill="#10B981" 
+                  fillOpacity={0.1}
+                  stroke="#10B981"
+                  strokeWidth={2}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="expenses" 
+                  stroke="#EF4444" 
+                  strokeWidth={3}
+                  dot={{ fill: '#EF4444', strokeWidth: 2, r: 6 }}
+                  activeDot={{ r: 8, stroke: '#EF4444', strokeWidth: 2 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="deductions" 
+                  stroke="#8B5CF6" 
+                  strokeWidth={3}
+                  dot={{ fill: '#8B5CF6', strokeWidth: 2, r: 6 }}
+                  activeDot={{ r: 8, stroke: '#8B5CF6', strokeWidth: 2 }}
+                />
+                <Line 
+                  type="monotone" 
+                  dataKey="taxPaid" 
+                  stroke="#F59E0B" 
+                  strokeWidth={3}
+                  dot={{ fill: '#F59E0B', strokeWidth: 2, r: 6 }}
+                  activeDot={{ r: 8, stroke: '#F59E0B', strokeWidth: 2 }}
+                />
+              </ComposedChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="text-center py-8 text-gray-500">No monthly data available</div>
+          )}
         </CardContent>
       </Card>
 
       {/* Category Breakdown - Enhanced Pie Chart */}
       <Card className="border-0 shadow-2xl bg-gradient-to-br from-emerald-50 via-green-50 to-emerald-100 hover:shadow-3xl transition-all duration-500">
-          <CardHeader className="pb-4">
+        <CardHeader className="pb-4">
           <CardTitle className="text-3xl text-emerald-700 flex items-center">
             <PieChartIcon2 className="w-8 h-8 mr-3 text-emerald-500" />
             Expense Category Analysis
-            </CardTitle>
+          </CardTitle>
           <p className="text-emerald-600 text-lg">Detailed breakdown of your expenses by category with tax implications</p>
-          </CardHeader>
-          <CardContent>
+        </CardHeader>
+        <CardContent>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <ResponsiveContainer width="100%" height={400}>
               <PieChart>
                 <Pie
-                  data={categoryData}
+                  data={getChartData().category}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                  label={({ name, percent }) => `${name} ${percent ? (percent * 100).toFixed(0) : 0}%`}
                   outerRadius={120}
                   fill="#8884d8"
                   dataKey="value"
                 >
-                  {categoryData.map((entry: any, index: number) => (
+                  {getChartData().category.map((entry: any, index: number) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -220,7 +250,7 @@ export default function ChartsAndGraphs({ csvAnalysisResults, taxDerived }: Char
             
             <div className="space-y-4">
               <h4 className="text-xl font-semibold text-emerald-800 mb-4">Category Details</h4>
-              {categoryData.map((category: any, index: number) => (
+              {getChartData().category.map((category: any, index: number) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-white/60 rounded-xl border border-emerald-200/30">
                   <div className="flex items-center space-x-3">
                     <div className="w-4 h-4 rounded-full" style={{ backgroundColor: category.color }}></div>
@@ -234,33 +264,33 @@ export default function ChartsAndGraphs({ csvAnalysisResults, taxDerived }: Char
               ))}
             </div>
           </div>
-          </CardContent>
-        </Card>
+        </CardContent>
+      </Card>
 
       {/* Performance Metrics - Enhanced Bar Chart */}
       <Card className="border-0 shadow-2xl bg-gradient-to-br from-purple-50 via-violet-50 to-purple-100 hover:shadow-3xl transition-all duration-500">
-          <CardHeader className="pb-4">
+        <CardHeader className="pb-4">
           <CardTitle className="text-3xl text-purple-700 flex items-center">
             <Target className="w-8 h-8 mr-3 text-purple-500" />
             Performance Metrics Dashboard
-            </CardTitle>
+          </CardTitle>
           <p className="text-purple-600 text-lg">Track your tax optimization performance against targets</p>
-          </CardHeader>
-          <CardContent>
+        </CardHeader>
+        <CardContent>
           <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={performanceData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+            <BarChart data={getChartData().performance} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.3} />
               <XAxis dataKey="metric" stroke="#64748B" fontSize={12} />
               <YAxis stroke="#64748B" fontSize={12} />
               <Tooltip content={<CustomTooltip />} />
-                <Legend />
+              <Legend />
               <Bar dataKey="score" fill="#8B5CF6" radius={[4, 4, 0, 0]} />
               <Bar dataKey="target" fill="#A78BFA" radius={[4, 4, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            </BarChart>
+          </ResponsiveContainer>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mt-6">
-            {performanceData.map((metric, index) => (
+            {getChartData().performance.map((metric, index) => (
               <div key={index} className="text-center p-4 bg-white/60 rounded-xl border border-purple-200/30">
                 <div className="text-2xl font-bold text-purple-700">{metric.score}%</div>
                 <div className="text-sm text-purple-600">{metric.metric}</div>
@@ -268,8 +298,8 @@ export default function ChartsAndGraphs({ csvAnalysisResults, taxDerived }: Char
               </div>
             ))}
           </div>
-          </CardContent>
-        </Card>
+        </CardContent>
+      </Card>
 
       {/* Quarterly Analysis - Area Chart */}
       <Card className="border-0 shadow-2xl bg-gradient-to-br from-orange-50 via-amber-50 to-orange-100 hover:shadow-3xl transition-all duration-500">
@@ -281,8 +311,9 @@ export default function ChartsAndGraphs({ csvAnalysisResults, taxDerived }: Char
           <p className="text-orange-600 text-lg">Quarterly trends showing your tax optimization progress</p>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <AreaChart data={quarterlyData}>
+          {getChartData().quarterly && getChartData().quarterly.length > 0 ? (
+            <ResponsiveContainer width="100%" height={400}>
+              <AreaChart data={getChartData().quarterly}>
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" strokeOpacity={0.3} />
               <XAxis dataKey="quarter" stroke="#64748B" fontSize={12} />
               <YAxis stroke="#64748B" fontSize={12} />
@@ -312,8 +343,16 @@ export default function ChartsAndGraphs({ csvAnalysisResults, taxDerived }: Char
                 fill="#3B82F6" 
                 fillOpacity={0.6}
               />
-            </AreaChart>
-          </ResponsiveContainer>
+                          </AreaChart>
+            </ResponsiveContainer>
+            ) : (
+              <div className="h-[400px] flex items-center justify-center text-gray-500">
+                <div className="text-center">
+                  <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                  <p>No quarterly data available</p>
+                </div>
+              </div>
+            )}
         </CardContent>
       </Card>
 
@@ -327,8 +366,9 @@ export default function ChartsAndGraphs({ csvAnalysisResults, taxDerived }: Char
           <p className="text-cyan-600 text-lg">Multi-dimensional view of your tax management capabilities</p>
         </CardHeader>
         <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <RadarChart data={radarData}>
+          {getChartData().radar && getChartData().radar.length > 0 ? (
+            <ResponsiveContainer width="100%" height={400}>
+              <RadarChart data={getChartData().radar}>
               <PolarGrid stroke="#E2E8F0" strokeOpacity={0.3} />
               <PolarAngleAxis dataKey="subject" stroke="#64748B" fontSize={12} />
               <PolarRadiusAxis stroke="#E2E8F0" strokeOpacity={0.3} />
@@ -353,11 +393,20 @@ export default function ChartsAndGraphs({ csvAnalysisResults, taxDerived }: Char
               <Tooltip content={<CustomTooltip />} />
             </RadarChart>
           </ResponsiveContainer>
+          ) : (
+            <div className="h-[400px] flex items-center justify-center text-gray-500">
+              <div className="text-center">
+                <Activity className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <p>No radar data available</p>
+              </div>
+            </div>
+          )}
         </CardContent>
       </Card>
 
       {/* Summary Statistics */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {getChartData().category && getChartData().category.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card className="border-0 shadow-xl bg-gradient-to-r from-emerald-50 to-green-50 hover:shadow-2xl transition-all duration-300">
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
@@ -410,10 +459,21 @@ export default function ChartsAndGraphs({ csvAnalysisResults, taxDerived }: Char
               <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl flex items-center justify-center shadow-lg">
                 <PieChartIcon className="w-6 h-6 text-white" />
               </div>
+                          </div>
+            </CardContent>
+          </Card>
+        </div>
+        ) : (
+          <Card className="border-0 shadow-xl bg-gradient-to-r from-gray-50 to-gray-100">
+            <CardContent className="pt-6">
+              <div className="text-center">
+                <PieChartIcon className="w-16 h-16 mx-auto mb-4 text-gray-300" />
+                <h3 className="text-xl font-semibold text-gray-600 mb-2">No Data Available</h3>
+                <p className="text-gray-500">Upload your expense data to see summary statistics</p>
               </div>
             </CardContent>
           </Card>
-      </div>
+        )}
     </div>
   )
 }
